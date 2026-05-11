@@ -5,7 +5,7 @@ import { todayStr, fmtDate } from '@/lib/helpers';
 
 export default function HistoryPage({ history, loaded }: { history: HistoryEntry[]; loaded: boolean }) {
   const streak = (() => {
-    const dates = [...new Set(history.map((h) => h.date))].sort().reverse();
+    const dates = Array.from(new Set(history.map((h) => h.date))).sort().reverse();
     let s = 0; let cur = new Date(); cur.setHours(0, 0, 0, 0);
     for (const d of dates) {
       const dd = new Date(d + 'T00:00:00');
