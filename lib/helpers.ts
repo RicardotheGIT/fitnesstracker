@@ -1,4 +1,4 @@
-import type { HistoryEntry, WorkoutSession, DietLog } from './types';
+import type { HistoryEntry, WorkoutEntry, WorkoutSession, DietLog, WaterLog } from './types';
 import { MINUTES } from './constants';
 
 export const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -22,34 +22,45 @@ export const calcCal = (kg: number) => {
   return { during: d, total: Math.round(d * 1.15) };
 };
 
+export const dayTotalCal = (entry: HistoryEntry) =>
+  entry.workouts?.reduce((sum, w) => sum + w.calTotal, 0) ?? 0;
+
+export const dayDone = (entry: HistoryEntry) =>
+  entry.workouts?.some((w) => w.done) ?? false;
+
 export function mergeHistory(
   workouts: WorkoutSession[] | null,
-  diets: DietLog[] | null
+  diets: DietLog[] | null,
+  waters: WaterLog[] | null,
 ): HistoryEntry[] {
   const map = new Map<string, HistoryEntry>();
 
   workouts?.forEach((w) => {
-    map.set(w.date, {
-      date: w.date,
-      workout: {
-        done: w.done,
-        weightKg: w.weight_kg,
-        calDuring: w.cal_during,
-        calTotal: w.cal_total,
-        ts: new Date(w.created_at).getTime(),
-      },
-    });
+    const existing = map.get(w.date) ?? { date: w.date };
+    const entry: WorkoutEntry = {
+      id: w.id,
+      done: w.done,
+      weightKg: w.weight_kg,
+      calDuring: w.cal_during,
+      calTotal: w.cal_total,
+      ts: new Date(w.created_at).getTime(),
+    };
+    map.set(w.date, { ...existing, workouts: [...(existing.workouts ?? []), entry] });
   });
 
   diets?.forEach((d) => {
     const existing = map.get(d.date) ?? { date: d.date };
     map.set(d.date, {
       ...existing,
-      diet: {
-        status: d.status,
-        surplus: d.surplus_cal,
-        ts: new Date(d.created_at).getTime(),
-      },
+      diet: { status: d.status, surplus: d.surplus_cal, ts: new Date(d.created_at).getTime() },
+    });
+  });
+
+  waters?.forEach((w) => {
+    const existing = map.get(w.date) ?? { date: w.date };
+    map.set(w.date, {
+      ...existing,
+      water: { drank: w.drank, ts: new Date(w.created_at).getTime() },
     });
   });
 

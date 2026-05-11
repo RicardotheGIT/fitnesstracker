@@ -1,4 +1,5 @@
 export type WorkoutEntry = {
+  id?: string;
   done: boolean;
   weightKg: number;
   calDuring: number;
@@ -12,10 +13,23 @@ export type DietEntry = {
   ts: number;
 };
 
+export type WaterEntry = {
+  drank: boolean;
+  ts: number;
+};
+
 export type HistoryEntry = {
+  date: string;
+  workouts?: WorkoutEntry[];
+  diet?: DietEntry;
+  water?: WaterEntry;
+};
+
+export type SavePayload = {
   date: string;
   workout?: WorkoutEntry;
   diet?: DietEntry;
+  water?: WaterEntry;
 };
 
 export type WorkoutSession = {
@@ -35,5 +49,13 @@ export type DietLog = {
   date: string;
   status: 'achieved' | 'nope';
   surplus_cal: number;
+  created_at: string;
+};
+
+export type WaterLog = {
+  id: string;
+  user_id: string;
+  date: string;
+  drank: boolean;
   created_at: string;
 };

@@ -5,14 +5,14 @@ import Diagram from './Diagram';
 import { WORK_TIME, REST_TIME, TOTAL_DURATION, MINUTES } from '@/lib/constants';
 import { POOL } from '@/lib/data';
 import { formatTime, getRoundColor, pickRandom, calcCal, todayStr } from '@/lib/helpers';
-import type { HistoryEntry } from '@/lib/types';
+import type { HistoryEntry, SavePayload } from '@/lib/types';
 
 const buildWorkout = () =>
   [1, 2, 3].flatMap((r) => pickRandom(POOL[r], 3).map((ex) => ({ ...ex, round: r })));
 
 type Phase = 'idle' | 'warmup' | 'work' | 'rest' | 'done';
 
-export default function WorkoutPage({ saveEntry }: { saveEntry: (e: Partial<HistoryEntry>) => Promise<void> }) {
+export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: SavePayload) => Promise<void>; history: HistoryEntry[] }) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [exercises, setExercises] = useState<ReturnType<typeof buildWorkout>>([]);
   const [exIdx, setExIdx] = useState(0);
@@ -24,6 +24,8 @@ export default function WorkoutPage({ saveEntry }: { saveEntry: (e: Partial<Hist
   const [weightInput, setWeightInput] = useState('80');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
   const [saved, setSaved] = useState(false);
+
+  const todayWorkouts = history.find((h) => h.date === todayStr())?.workouts ?? [];
 
   const actx = useRef<AudioContext | null>(null);
   const phaseR = useRef(phase);
@@ -167,7 +169,12 @@ export default function WorkoutPage({ saveEntry }: { saveEntry: (e: Partial<Hist
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 44, marginBottom: 10 }}>🏃</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f0f0', marginBottom: 6 }}>Ready to burn?</div>
-            <div style={{ fontSize: 12, color: '#777', marginBottom: 18, lineHeight: 1.8 }}>3 rounds · random exercises · 40s work / 20s rest</div>
+            <div style={{ fontSize: 12, color: '#777', marginBottom: todayWorkouts.length > 0 ? 10 : 18, lineHeight: 1.8 }}>3 rounds · random exercises · 40s work / 20s rest</div>
+            {todayWorkouts.length > 0 && (
+              <div style={{ fontSize: 12, color: '#2dcc70', marginBottom: 18, fontWeight: 700 }}>
+                ✓ {todayWorkouts.length} workout{todayWorkouts.length > 1 ? 's' : ''} logged today · {todayWorkouts.reduce((s, w) => s + w.calTotal, 0)} cal
+              </div>
+            )}
             <div style={{ background: '#ffffff08', borderRadius: 12, padding: 14, marginBottom: 18, border: '1px solid #ffffff10' }}>
               <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 10, textTransform: 'uppercase' }}>Your weight</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
@@ -183,7 +190,7 @@ export default function WorkoutPage({ saveEntry }: { saveEntry: (e: Partial<Hist
                 <div style={{ fontSize: 12, color: '#888' }}>{l} · randomly selected</div>
               </div>;
             })}
-            <button onClick={start} style={{ marginTop: 14, background: '#2dcc70', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '13px 36px', fontSize: 14, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>Start</button>
+            <button onClick={start} style={{ marginTop: 14, background: '#2dcc70', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '13px 36px', fontSize: 14, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>{todayWorkouts.length > 0 ? 'Go Again' : 'Start'}</button>
           </div>
         )}
 

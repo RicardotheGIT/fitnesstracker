@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { MEALS } from '@/lib/constants';
 import { MEAL_LIBRARY, type MealItem } from '@/lib/data';
 import { todayStr } from '@/lib/helpers';
-import type { HistoryEntry } from '@/lib/types';
+import type { HistoryEntry, SavePayload } from '@/lib/types';
 
 type Meal = (typeof MEALS)[number];
 
@@ -20,21 +20,29 @@ const formatDayPlan = () =>
     return `${m.icon} ${m.label} (${m.cal} cal)\n${pick.name}\n${pick.desc}\n${pick.protein}g protein`;
   }).join('\n\n');
 
-export default function DietPage({ saveEntry, history }: { saveEntry: (e: Partial<HistoryEntry>) => Promise<void>; history: HistoryEntry[] }) {
+export default function DietPage({ saveEntry, history }: { saveEntry: (e: SavePayload) => Promise<void>; history: HistoryEntry[] }) {
   const [mode, setMode] = useState<'day' | 'meal' | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [dietStatus, setDietStatus] = useState<'achieved' | 'nope' | null>(null);
   const [surplus, setSurplus] = useState('');
   const [dietSaved, setDietSaved] = useState(false);
+  const [waterDrank, setWaterDrank] = useState<boolean | null>(null);
+  const [waterSaved, setWaterSaved] = useState(false);
 
-  const todayDiet = history.find((h) => h.date === todayStr())?.diet;
+  const today = history.find((h) => h.date === todayStr());
+  const todayDiet = today?.diet;
+  const todayWater = today?.water;
 
   useEffect(() => {
     if (todayDiet) {
       setDietStatus(todayDiet.status);
       setSurplus(String(todayDiet.surplus || ''));
       setDietSaved(true);
+    }
+    if (todayWater) {
+      setWaterDrank(todayWater.drank);
+      setWaterSaved(true);
     }
   }, []);
 
@@ -49,6 +57,13 @@ export default function DietPage({ saveEntry, history }: { saveEntry: (e: Partia
     if (!dietStatus) return;
     await saveEntry({ date: todayStr(), diet: { status: dietStatus, surplus: parseInt(surplus) || 0, ts: Date.now() } });
     setDietSaved(true);
+  };
+
+  const handleSaveWater = async (drank: boolean) => {
+    setWaterDrank(drank);
+    setWaterSaved(false);
+    await saveEntry({ date: todayStr(), water: { drank, ts: Date.now() } });
+    setWaterSaved(true);
   };
 
   return (
@@ -68,6 +83,29 @@ export default function DietPage({ saveEntry, history }: { saveEntry: (e: Partia
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Water tracker */}
+      <div style={{ background: '#111', borderRadius: 14, padding: 14, marginBottom: 14, border: `1px solid ${waterSaved ? (waterDrank ? '#3a9bdc30' : '#ffffff15') : '#ffffff08'}` }}>
+        <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 10, textTransform: 'uppercase' }}>💧 Water intake</div>
+        <div style={{ fontSize: 12, color: '#888', marginBottom: 10 }}>Did you drink at least 1.5 litres today?</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => handleSaveWater(true)}
+            style={{ flex: 1, padding: '12px 8px', borderRadius: 10, border: `2px solid ${waterDrank === true ? '#3a9bdc' : '#ffffff15'}`, background: waterDrank === true ? '#3a9bdc20' : 'transparent', color: waterDrank === true ? '#3a9bdc' : '#666', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+            💧 Yes
+          </button>
+          <button
+            onClick={() => handleSaveWater(false)}
+            style={{ flex: 1, padding: '12px 8px', borderRadius: 10, border: `2px solid ${waterDrank === false ? '#e74c3c' : '#ffffff15'}`, background: waterDrank === false ? '#e74c3c20' : 'transparent', color: waterDrank === false ? '#e74c3c' : '#666', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+            ✗ No
+          </button>
+        </div>
+        {waterSaved && (
+          <div style={{ marginTop: 8, fontSize: 11, color: waterDrank ? '#3a9bdc' : '#e74c3c', textAlign: 'center' }}>
+            {waterDrank ? '✓ Hydration logged' : '✗ Logged — aim for more tomorrow'}
+          </div>
+        )}
       </div>
 
       <div style={{ background: '#111', borderRadius: 14, padding: 14, marginBottom: 14, border: '1px solid #ffffff08' }}>
