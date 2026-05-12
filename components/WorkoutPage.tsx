@@ -2,17 +2,16 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Diagram from './Diagram';
-import { WORK_TIME, REST_TIME, TOTAL_DURATION, MINUTES } from '@/lib/constants';
+import { WORK_TIME, REST_TIME, TOTAL_DURATION } from '@/lib/constants';
 import { POOL } from '@/lib/data';
-import { formatTime, getRoundColor, pickRandom, calcCal, todayStr } from '@/lib/helpers';
-import type { HistoryEntry, SavePayload } from '@/lib/types';
+import { formatTime, getRoundColor, pickRandom, calcCal } from '@/lib/helpers';
 
 const buildWorkout = () =>
-  [1, 2, 3].flatMap((r) => pickRandom(POOL[r], 3).map((ex) => ({ ...ex, round: r })));
+  [1, 2, 3].flatMap((r) => pickRandom(POOL[r], 5).map((ex) => ({ ...ex, round: r })));
 
 type Phase = 'idle' | 'warmup' | 'work' | 'rest' | 'done';
 
-export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: SavePayload) => Promise<void>; history: HistoryEntry[] }) {
+export default function WorkoutPage() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [exercises, setExercises] = useState<ReturnType<typeof buildWorkout>>([]);
   const [exIdx, setExIdx] = useState(0);
@@ -23,9 +22,6 @@ export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: Sav
   const [weightKg, setWeightKg] = useState(80);
   const [weightInput, setWeightInput] = useState('80');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
-  const [saved, setSaved] = useState(false);
-
-  const todayWorkouts = history.find((h) => h.date === todayStr())?.workouts ?? [];
 
   const actx = useRef<AudioContext | null>(null);
   const phaseR = useRef(phase);
@@ -100,14 +96,7 @@ export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: Sav
     getCtx();
     const w = buildWorkout();
     setExercises(w); exsR.current = w;
-    setPhase('warmup'); setWarmup(20); setExIdx(0); setElapsed(0); setSaved(false);
-  };
-
-  const handleSave = async () => {
-    if (saved) return;
-    const { during, total } = calcCal(weightKg);
-    await saveEntry({ date: todayStr(), workout: { done: true, weightKg, calDuring: during, calTotal: total, ts: Date.now() } });
-    setSaved(true);
+    setPhase('warmup'); setWarmup(20); setExIdx(0); setElapsed(0);
   };
 
   useEffect(() => {
@@ -169,12 +158,7 @@ export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: Sav
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 44, marginBottom: 10 }}>🏃</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f0f0', marginBottom: 6 }}>Ready to burn?</div>
-            <div style={{ fontSize: 12, color: '#777', marginBottom: todayWorkouts.length > 0 ? 10 : 18, lineHeight: 1.8 }}>3 rounds · random exercises · 40s work / 20s rest</div>
-            {todayWorkouts.length > 0 && (
-              <div style={{ fontSize: 12, color: '#2dcc70', marginBottom: 18, fontWeight: 700 }}>
-                ✓ {todayWorkouts.length} workout{todayWorkouts.length > 1 ? 's' : ''} logged today · {todayWorkouts.reduce((s, w) => s + w.calTotal, 0)} cal
-              </div>
-            )}
+            <div style={{ fontSize: 12, color: '#777', marginBottom: 18, lineHeight: 1.8 }}>3 rounds · random exercises · 40s work / 20s rest</div>
             <div style={{ background: '#ffffff08', borderRadius: 12, padding: 14, marginBottom: 18, border: '1px solid #ffffff10' }}>
               <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 10, textTransform: 'uppercase' }}>Your weight</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
@@ -190,7 +174,7 @@ export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: Sav
                 <div style={{ fontSize: 12, color: '#888' }}>{l} · randomly selected</div>
               </div>;
             })}
-            <button onClick={start} style={{ marginTop: 14, background: '#2dcc70', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '13px 36px', fontSize: 14, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>{todayWorkouts.length > 0 ? 'Go Again' : 'Start'}</button>
+            <button onClick={start} style={{ marginTop: 14, background: '#2dcc70', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '13px 36px', fontSize: 14, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>Start</button>
           </div>
         )}
 
@@ -243,7 +227,7 @@ export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: Sav
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 10 }}>🎯</div>
             <div style={{ fontSize: 21, fontWeight: 700, color: '#f0f0f0', marginBottom: 14 }}>Done. Smashed it.</div>
-            <div style={{ background: '#ffffff08', borderRadius: 12, padding: 14, marginBottom: 14, border: '1px solid #a78bfa30' }}>
+            <div style={{ background: '#ffffff08', borderRadius: 12, padding: 14, marginBottom: 18, border: '1px solid #a78bfa30' }}>
               <div style={{ fontSize: 10, letterSpacing: 3, color: '#a78bfa', marginBottom: 12, textTransform: 'uppercase' }}>Calories · {weightKg}kg</div>
               <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                 <div style={{ textAlign: 'center' }}><div style={{ fontSize: 26, fontWeight: 700, color: '#2dcc70' }}>{during}</div><div style={{ fontSize: 9, color: '#555', letterSpacing: 1 }}>DURING</div></div>
@@ -253,9 +237,6 @@ export default function WorkoutPage({ saveEntry, history }: { saveEntry: (e: Sav
                 <div style={{ textAlign: 'center' }}><div style={{ fontSize: 26, fontWeight: 700, color: '#f0f0f0' }}>{total}</div><div style={{ fontSize: 9, color: '#555', letterSpacing: 1 }}>TOTAL</div></div>
               </div>
             </div>
-            <button onClick={handleSave} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', padding: 14, marginBottom: 10, background: saved ? '#2dcc7020' : '#ffffff10', border: `1px solid ${saved ? '#2dcc70' : '#ffffff20'}`, borderRadius: 12, fontSize: 15, fontWeight: 700, color: saved ? '#2dcc70' : '#f0f0f0', cursor: saved ? 'default' : 'pointer', fontFamily: 'inherit', transition: 'all 0.3s' }}>
-              <span style={{ fontSize: 20 }}>{saved ? '✅' : '☐'}</span>{saved ? 'Workout logged!' : 'Mark as done'}
-            </button>
             <button onClick={start} style={{ background: '#a78bfa', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '12px 32px', fontSize: 13, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>Go Again</button>
           </div>
         )}
