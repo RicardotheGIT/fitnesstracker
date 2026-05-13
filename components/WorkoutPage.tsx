@@ -26,6 +26,8 @@ export default function WorkoutPage() {
   const [stretches, setStretches] = useState<Stretch[]>([]);
 
   const actx = useRef<AudioContext | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animRef = useRef<number | null>(null);
   const phaseR = useRef(phase);
   const idxR = useRef(exIdx);
   const exsR = useRef(exercises);
@@ -67,6 +69,74 @@ export default function WorkoutPage() {
 
   const beeps3 = useCallback(() => { beep(660, 0.12, 0); beep(660, 0.12, 0.35); beep(920, 0.3, 0.7); }, [beep]);
 
+  const playCelebration = useCallback(() => {
+    if (mutedR.current) return;
+    try {
+      const ctx = getCtx();
+      const notes = [
+        { f: 523, t: 0, d: 0.18 }, { f: 659, t: 0.18, d: 0.18 }, { f: 784, t: 0.36, d: 0.18 },
+        { f: 1047, t: 0.54, d: 0.35 }, { f: 784, t: 1.0, d: 0.12 }, { f: 1047, t: 1.13, d: 0.6 },
+      ];
+      notes.forEach(({ f, t, d }) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination); osc.type = 'triangle';
+        osc.frequency.value = f;
+        g.gain.setValueAtTime(0, ctx.currentTime + t);
+        g.gain.linearRampToValueAtTime(0.25, ctx.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + d);
+        osc.start(ctx.currentTime + t); osc.stop(ctx.currentTime + t + d + 0.05);
+      });
+    } catch {}
+  }, [getCtx]);
+
+  const launchFireworks = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    type P = { x: number; y: number; vx: number; vy: number; color: string; alpha: number; r: number };
+    let particles: P[] = [];
+
+    const burst = (x: number, y: number) => {
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#f7a8d8', '#a78bfa', '#ff9f43'];
+      for (let i = 0; i < 55; i++) {
+        const angle = (Math.PI * 2 * i) / 55 + Math.random() * 0.3;
+        const speed = 2.5 + Math.random() * 5;
+        particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color: colors[Math.floor(Math.random() * colors.length)], alpha: 1, r: 2 + Math.random() * 3 });
+      }
+    };
+
+    const positions: [number, number][] = [[0.25, 0.25], [0.75, 0.2], [0.5, 0.15], [0.15, 0.4], [0.85, 0.35], [0.5, 0.35], [0.3, 0.15], [0.7, 0.4]];
+    positions.forEach(([px, py], i) => setTimeout(() => burst(canvas.width * px, canvas.height * py), i * 280));
+
+    const startTime = Date.now();
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.alpha -= 0.013;
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color; ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      particles = particles.filter(p => p.alpha > 0);
+      if (particles.length > 0 || Date.now() - startTime < 2500) {
+        animRef.current = requestAnimationFrame(draw);
+      }
+    };
+    animRef.current = requestAnimationFrame(draw);
+  }, []);
+
+  useEffect(() => {
+    if (phase !== 'done') return;
+    playCelebration();
+    launchFireworks();
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [phase, playCelebration, launchFireworks]);
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeLeftRef = useRef(0);
   const onDoneRef = useRef<(() => void) | null>(null);
@@ -96,6 +166,9 @@ export default function WorkoutPage() {
 
   const start = () => {
     getCtx();
+    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
+    const canvas = canvasRef.current;
+    if (canvas) canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
     const w = buildWorkout();
     setExercises(w); exsR.current = w;
     setStretches(pickRandom(STRETCHES, 4));
@@ -142,6 +215,7 @@ export default function WorkoutPage() {
 
   return (
     <div onClick={() => { if (actx.current?.state === 'suspended') actx.current.resume(); }} style={{ width: '100%', maxWidth: 380 }}>
+      <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 50, display: phase === 'done' ? 'block' : 'none' }} />
       {phase !== 'idle' && phase !== 'done' && (
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#555', marginBottom: 6, letterSpacing: 2 }}><span>ELAPSED</span><span>{formatTime(elapsed)} / 15:00</span></div>
@@ -159,9 +233,10 @@ export default function WorkoutPage() {
 
         {phase === 'idle' && (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 44, marginBottom: 10 }}>🏃</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f0f0', marginBottom: 6 }}>Ready to burn?</div>
-            <div style={{ fontSize: 12, color: '#777', marginBottom: 18, lineHeight: 1.8 }}>3 rounds · random exercises · 40s work / 20s rest</div>
+            <div style={{ fontSize: 44, marginBottom: 10 }}>💪</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f0f0', marginBottom: 6 }}>Ready, Dod?</div>
+            <div style={{ fontSize: 12, color: '#777', marginBottom: 4, lineHeight: 1.8 }}>15 min · 3 rounds · 40s work / 20s rest</div>
+            <div style={{ fontSize: 11, color: '#555', marginBottom: 18, lineHeight: 1.8 }}>Upper body → Full body → Cardio · Cool-down stretches at the end</div>
             <div style={{ background: '#ffffff08', borderRadius: 12, padding: 14, marginBottom: 18, border: '1px solid #ffffff10' }}>
               <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 10, textTransform: 'uppercase' }}>Your weight</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
@@ -228,8 +303,9 @@ export default function WorkoutPage() {
 
         {phase === 'done' && (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 48, marginBottom: 10 }}>🎯</div>
-            <div style={{ fontSize: 21, fontWeight: 700, color: '#f0f0f0', marginBottom: 14 }}>Done. Smashed it.</div>
+            <div style={{ fontSize: 48, marginBottom: 10 }}>🎉</div>
+            <div style={{ fontSize: 21, fontWeight: 700, color: '#f0f0f0', marginBottom: 4 }}>Well done Dod!</div>
+            <div style={{ fontSize: 13, color: '#a78bfa', marginBottom: 14 }}>You absolute legend.</div>
             <div style={{ background: '#ffffff08', borderRadius: 12, padding: 14, marginBottom: 18, border: '1px solid #a78bfa30' }}>
               <div style={{ fontSize: 10, letterSpacing: 3, color: '#a78bfa', marginBottom: 12, textTransform: 'uppercase' }}>Calories · {weightKg}kg</div>
               <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
