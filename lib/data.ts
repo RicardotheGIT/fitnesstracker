@@ -89,3 +89,26 @@ export const POOL: Record<number, Exercise[]> = {
   ],
 };
 
+export type Stretch = {
+  name: string;
+  icon: string;
+  target: string;
+  cue: string;
+  steps: string[];
+};
+
+export const STRETCHES: Stretch[] = [
+  { name: "Child's Pose", icon: '🧘', target: 'Lower back', cue: 'Breathe into your lower back. Let it soften with each exhale.', steps: ['Kneel and sit back on your heels', 'Walk hands forward, lower chest toward floor', 'Arms extended or alongside body', 'Hold 30 seconds, breathe deeply'] },
+  { name: 'Knees to Chest', icon: '🤲', target: 'Lower back', cue: 'Gently hug your knees. Rock side to side to massage the spine.', steps: ['Lie on your back', 'Draw both knees into your chest', 'Wrap arms around shins', 'Rock gently side to side for 30 seconds'] },
+  { name: 'Supine Twist', icon: '🔄', target: 'Lower back & hips', cue: 'Keep both shoulders flat on the floor. Breathe into the rotation.', steps: ['Lie on your back', 'Draw right knee to chest, cross it left', 'Extend right arm out, look right', 'Hold 30 sec, then switch sides'] },
+  { name: 'Figure Four', icon: '🦵', target: 'Glutes & piriformis', cue: 'Flex the top foot to protect your knee. Pull the bottom leg toward your chest.', steps: ['Lie on your back, feet flat', 'Cross right ankle over left knee', 'Flex right foot to protect the knee', 'Pull left thigh toward chest. Switch sides after 30 sec'] },
+  { name: 'Pigeon Pose', icon: '🕊️', target: 'Glutes & hips', cue: 'Sink your hips toward the floor. Breathe and relax into it.', steps: ['From plank, bring right knee toward right wrist', 'Extend left leg straight back', 'Square your hips forward', 'Fold forward over front leg. Hold 30 sec, switch sides'] },
+  { name: 'Seated Hip Stretch', icon: '🪑', target: 'Glutes & hips', cue: 'Stay tall and hinge forward from your hips, not your spine.', steps: ['Sit on floor or chair, cross right ankle over left knee', 'Flex right foot', 'Hinge forward from hips until you feel the stretch', 'Hold 30 sec, switch sides'] },
+  { name: 'Standing Quad Stretch', icon: '🏃', target: 'Quads', cue: 'Keep knees together and stand tall. Squeeze the glute of the stretching leg.', steps: ['Stand on left foot, use wall for balance if needed', 'Bend right knee, pull heel to glute', 'Keep knees side by side', 'Hold 30 sec, switch sides'] },
+  { name: 'Hamstring Fold', icon: '⬇️', target: 'Hamstrings & lower back', cue: 'Hinge from the hip, not the spine. Let gravity do the work.', steps: ['Stand with feet hip-width, soft knees', 'Hinge forward from hips, hands toward floor', 'Relax your neck and head completely', 'Breathe and sink deeper each exhale — hold 30 sec'] },
+  { name: 'Calf Stretch', icon: '🦶', target: 'Calves', cue: 'Back heel pressed firmly into the floor. Both hips square forward.', steps: ['Step right foot back, split stance', 'Press right heel firmly into the floor', 'Bend front knee, lean toward wall', 'Hold 30 sec, switch sides'] },
+  { name: 'Low Lunge Hip Flexor', icon: '🦵', target: 'Hip flexors', cue: 'Tuck your tailbone under to deepen the stretch. Squeeze the back glute.', steps: ['Kneel with right knee down, left foot forward', 'Shift hips forward gently', 'Tuck pelvis under, squeeze right glute', 'Raise arms overhead. Hold 30 sec, switch sides'] },
+  { name: 'Butterfly Stretch', icon: '🦋', target: 'Inner thighs & groin', cue: 'Tall spine. Let gravity open your hips — no forcing or bouncing.', steps: ['Sit tall, bring soles of feet together', 'Let knees fall out to the sides', 'Hold feet, hinge gently forward from hips', 'Breathe and relax for 30 seconds'] },
+  { name: 'Figure-4 Hip Opener', icon: '🔓', target: 'Hips & glutes', cue: 'Drive the knee away from your body to open the hip.', steps: ['Lie on back, cross right ankle over left knee', 'Thread right arm through to clasp hands behind left thigh', 'Gently pull left thigh toward chest', 'Drive right knee away. Hold 30 sec, switch sides'] },
+];
+

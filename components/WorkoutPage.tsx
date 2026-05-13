@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Diagram from './Diagram';
 import { WORK_TIME, REST_TIME, TOTAL_DURATION } from '@/lib/constants';
-import { POOL } from '@/lib/data';
+import { POOL, STRETCHES } from '@/lib/data';
+import type { Stretch } from '@/lib/data';
 import { formatTime, getRoundColor, pickRandom, calcCal } from '@/lib/helpers';
 
 const buildWorkout = () =>
@@ -22,6 +23,7 @@ export default function WorkoutPage() {
   const [weightKg, setWeightKg] = useState(80);
   const [weightInput, setWeightInput] = useState('80');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
+  const [stretches, setStretches] = useState<Stretch[]>([]);
 
   const actx = useRef<AudioContext | null>(null);
   const phaseR = useRef(phase);
@@ -96,6 +98,7 @@ export default function WorkoutPage() {
     getCtx();
     const w = buildWorkout();
     setExercises(w); exsR.current = w;
+    setStretches(pickRandom(STRETCHES, 4));
     setPhase('warmup'); setWarmup(20); setExIdx(0); setElapsed(0);
   };
 
@@ -237,7 +240,27 @@ export default function WorkoutPage() {
                 <div style={{ textAlign: 'center' }}><div style={{ fontSize: 26, fontWeight: 700, color: '#f0f0f0' }}>{total}</div><div style={{ fontSize: 9, color: '#555', letterSpacing: 1 }}>TOTAL</div></div>
               </div>
             </div>
-            <button onClick={start} style={{ background: '#a78bfa', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '12px 32px', fontSize: 13, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>Go Again</button>
+            {stretches.length > 0 && (
+              <div style={{ marginTop: 4, textAlign: 'left' }}>
+                <div style={{ fontSize: 10, letterSpacing: 3, color: '#a78bfa', marginBottom: 10, textAlign: 'center', textTransform: 'uppercase' }}>Cool down · hold 30s each side</div>
+                {stretches.map((s, i) => (
+                  <div key={i} style={{ background: '#ffffff06', border: '1px solid #a78bfa20', borderRadius: 10, padding: '12px 14px', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#f0f0f0' }}>{s.icon} {s.name}</div>
+                      <div style={{ fontSize: 9, color: '#a78bfa', letterSpacing: 1 }}>{s.target.toUpperCase()}</div>
+                    </div>
+                    <div style={{ fontSize: 11, color: '#666', marginBottom: 6, lineHeight: 1.5 }}>{s.cue}</div>
+                    {s.steps.map((step, j) => (
+                      <div key={j} style={{ display: 'flex', gap: 6, marginBottom: 3 }}>
+                        <span style={{ fontSize: 10, color: '#a78bfa', minWidth: 14 }}>{j + 1}.</span>
+                        <span style={{ fontSize: 11, color: '#888', lineHeight: 1.5 }}>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={start} style={{ marginTop: 8, background: '#a78bfa', color: '#0a0a0f', border: 'none', borderRadius: 12, padding: '12px 32px', fontSize: 13, fontWeight: 700, letterSpacing: 2, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase' }}>Go Again</button>
           </div>
         )}
       </div>
