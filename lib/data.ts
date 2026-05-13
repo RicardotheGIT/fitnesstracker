@@ -43,6 +43,18 @@ export const POSES: Record<string, { head: number[]; body: number[]; lArm: numbe
     { head: [40, 16], body: [40, 23, 40, 46], lArm: [40, 32, 20, 26], rArm: [40, 32, 60, 42], lLeg: [40, 46, 24, 68], rLeg: [40, 46, 58, 62] },
     { head: [60, 16], body: [60, 23, 60, 46], lArm: [60, 32, 40, 42], rArm: [60, 32, 80, 26], lLeg: [60, 46, 42, 62], rLeg: [60, 46, 76, 68] },
   ],
+  lunge: [
+    { head: [50, 18], body: [50, 25, 50, 48], lArm: [50, 33, 68, 43], rArm: [50, 33, 30, 44], lLeg: [50, 48, 40, 74], rLeg: [50, 48, 64, 72] },
+    { head: [50, 18], body: [50, 25, 50, 48], lArm: [50, 33, 28, 43], rArm: [50, 33, 70, 44], lLeg: [50, 48, 38, 72], rLeg: [50, 48, 60, 74] },
+  ],
+  hipHinge: [
+    { head: [28, 38], body: [34, 44, 60, 44], lArm: [43, 44, 38, 58], rArm: [43, 44, 50, 58], lLeg: [60, 44, 46, 74], rLeg: [60, 44, 70, 74] },
+    { head: [50, 18], body: [50, 25, 50, 48], lArm: [50, 33, 34, 47], rArm: [50, 33, 66, 47], lLeg: [50, 48, 38, 74], rLeg: [50, 48, 62, 74] },
+  ],
+  buttKick: [
+    { head: [50, 16], body: [50, 23, 50, 46], lArm: [50, 30, 28, 40], rArm: [50, 30, 72, 38], lLeg: [50, 46, 36, 72], rLeg: [50, 46, 62, 58] },
+    { head: [50, 16], body: [50, 23, 50, 46], lArm: [50, 30, 30, 38], rArm: [50, 30, 70, 40], lLeg: [50, 46, 38, 58], rLeg: [50, 46, 64, 72] },
+  ],
 };
 
 export type Exercise = {
@@ -59,81 +71,21 @@ export const POOL: Record<number, Exercise[]> = {
     { name: 'Overhead Band Press', icon: '🙌', poseKey: 'overheadPress', cue: 'Press band overhead. Core braced throughout.', steps: ['Band at shoulders, elbows bent', 'Brace your core', 'Press straight overhead to lockout', 'Lower slow, 3 counts'] },
     { name: 'Plank Shoulder Taps', icon: '🧱', poseKey: 'plankTap', cue: 'High plank. Tap opposite shoulder. Keep hips still.', steps: ['Hands under shoulders', 'Brace core and glutes', 'Lift hand, tap opposite shoulder', 'Hips dead still throughout'] },
     { name: 'Dead Bug', icon: '🐛', poseKey: 'deadBug', cue: 'Lower back flat on floor the entire time.', steps: ['Lie on back, arms up, knees 90°', 'Press lower back into floor', 'Extend opposite arm and leg', 'Return and switch sides'] },
+    { name: 'Bird Dog', icon: '🦅', poseKey: 'deadBug', cue: 'From all-fours, extend opposite arm and leg. Keep back flat.', steps: ['Start on hands and knees', 'Brace your core tight', 'Extend right arm and left leg together', 'Hold 2 sec, return, switch sides'] },
   ],
   2: [
     { name: 'Squat to Press', icon: '🏋️', poseKey: 'squatPress', cue: 'Squat down, drive up, press overhead. One fluid move.', steps: ['Feet shoulder width, weights at shoulders', 'Squat until thighs parallel', 'Drive through heels to stand', 'Press overhead at the top'] },
     { name: 'Lateral Shuffles', icon: '⚡', poseKey: 'lateralShuffle', cue: 'Stay low in half squat. Drive sideways with power.', steps: ['Drop into half squat', 'Push off outside foot explosively', 'Shuffle 3 to 4 steps sideways', 'Touch floor, shuffle back'] },
     { name: 'Glute Bridge March', icon: '🔥', poseKey: 'gluteBridge', cue: 'Hips up and locked. March one knee at a time.', steps: ['Lie on back, feet flat', 'Drive hips up, squeeze glutes', 'March one knee to 90°', 'Lower foot, march other knee'] },
+    { name: 'Reverse Lunge', icon: '🦵', poseKey: 'lunge', cue: 'Step back, lower back knee toward floor. Front knee stays behind toes.', steps: ['Stand feet hip-width apart', 'Step one foot back', 'Lower back knee toward the floor', 'Drive front foot down to return, alternate legs'] },
+    { name: 'Hip Hinge Deadlift', icon: '💪', poseKey: 'hipHinge', cue: 'Push hips back, not down. Keep back flat throughout.', steps: ['Stand feet hip-width, soft knees', 'Push hips back and hinge forward', 'Keep back flat, hands slide down legs', 'Drive hips forward to stand, squeeze glutes'] },
   ],
   3: [
     { name: 'Mountain Climbers', icon: '🏔️', poseKey: 'mountainClimber', cue: 'High plank. Drive knees hard and fast. Hands elevated if needed.', steps: ['High plank, core tight', 'Drive one knee toward chest', 'Switch legs fast', 'Hands on chair for back safety'] },
     { name: 'Jumping Jacks', icon: '🌟', poseKey: 'jumpingJack', cue: 'Full arm extension overhead. Land soft.', steps: ['Feet together, arms at sides', 'Jump feet wide, arms overhead', 'Clap at the top', 'Land soft, feet together'] },
     { name: 'High Knees', icon: '🏃', poseKey: 'highKnees', cue: 'Drive knees to hip height. Pump opposite arms.', steps: ['Stand tall', 'Drive right knee to hip height', 'Pump left arm forward', 'Switch fast, running cadence'] },
     { name: 'Speed Skaters', icon: '⛸️', poseKey: 'speedSkater', cue: 'Lateral bound foot to foot. Reach to floor on landing.', steps: ['Balance on right foot', 'Bound left, reach right hand to left foot', 'Land soft on left foot', 'Bound back, alternate'] },
+    { name: 'Butt Kicks', icon: '🏃', poseKey: 'buttKick', cue: 'Kick heels up to glutes. Stay on balls of feet. Quick cadence.', steps: ['Stand tall, slight forward lean', 'Kick right heel up toward glutes', 'Alternate legs at a running pace', 'Pump arms opposite to legs'] },
   ],
 };
 
-export type MealItem = { name: string; cal: number; protein: number; desc: string };
-
-export const MEAL_LIBRARY: Record<string, MealItem[]> = {
-  breakfast: [
-    { name: 'Greek yoghurt parfait', cal: 300, protein: 28, desc: '200g full-fat Greek yoghurt, mixed berries, 2 tbsp walnuts, drizzle of honey' },
-    { name: 'Smashed avo on wholegrain toast', cal: 300, protein: 14, desc: '2 slices wholegrain, 1 avo, 2 poached eggs, chilli flakes, lemon' },
-    { name: 'Veggie omelette', cal: 295, protein: 26, desc: '3 eggs, spinach, capsicum, feta, olive oil. Serve with 1 slice rye toast' },
-    { name: 'Overnight oats', cal: 300, protein: 20, desc: '60g oats, 200ml milk, 1 scoop protein powder, banana, chia seeds' },
-    { name: 'Smoked salmon bagel', cal: 305, protein: 24, desc: 'Wholegrain bagel, 80g smoked salmon, cream cheese, capers, cucumber' },
-    { name: 'Eggs on sourdough', cal: 300, protein: 22, desc: '2 eggs any style, 2 slices sourdough, sliced tomato, olive oil drizzle' },
-    { name: 'Protein smoothie bowl', cal: 295, protein: 30, desc: 'Protein powder, frozen banana, almond milk, topped with granola and blueberries' },
-    { name: 'Ricotta toast with fruit', cal: 300, protein: 18, desc: '2 slices wholegrain, 3 tbsp ricotta, sliced strawberries, honey, mint' },
-  ],
-  morningSnack: [
-    { name: 'Apple with almond butter', cal: 100, protein: 3, desc: '1 medium apple, 1 tsp almond butter' },
-    { name: 'Hard boiled egg', cal: 100, protein: 9, desc: '1 large egg, pinch of salt and pepper' },
-    { name: 'Small Greek yoghurt', cal: 100, protein: 10, desc: '100g plain Greek yoghurt, dash of cinnamon' },
-    { name: 'Rice cakes with vegemite', cal: 100, protein: 4, desc: '2 rice cakes, thin spread of vegemite and a scrape of butter' },
-    { name: 'Handful of mixed nuts', cal: 100, protein: 3, desc: '15g almonds and walnuts — roughly 10 nuts' },
-    { name: 'Cheese and crackers', cal: 100, protein: 6, desc: '2 Vita-Weat crackers, 20g cheddar' },
-    { name: 'Blueberries and cottage cheese', cal: 100, protein: 9, desc: '100g cottage cheese, handful of blueberries' },
-    { name: 'Celery and hummus', cal: 100, protein: 4, desc: '3 celery sticks, 2 tbsp hummus' },
-  ],
-  lunch: [
-    { name: 'Tuna and chickpea salad', cal: 350, protein: 34, desc: '1 can tuna, 100g chickpeas, cherry tomatoes, cucumber, lemon, olive oil, herbs' },
-    { name: 'Chicken and quinoa bowl', cal: 350, protein: 38, desc: '120g grilled chicken, 60g cooked quinoa, roasted capsicum, spinach, tahini dressing' },
-    { name: 'Lentil and veg soup', cal: 345, protein: 20, desc: 'Red lentils, carrot, celery, onion, cumin, coriander. 2 slices rye bread' },
-    { name: 'Grilled chicken wrap', cal: 350, protein: 36, desc: 'Wholegrain wrap, 120g chicken, lettuce, tomato, tzatziki, cucumber' },
-    { name: 'Salmon and brown rice', cal: 355, protein: 32, desc: '100g pan-fried salmon, 80g brown rice, steamed broccolini, soy and ginger' },
-    { name: 'Greek salad with halloumi', cal: 350, protein: 18, desc: 'Grilled halloumi, cucumber, tomato, olives, red onion, feta, oregano, olive oil' },
-    { name: 'Turkey and avocado wrap', cal: 350, protein: 30, desc: 'Wholegrain wrap, 100g turkey breast, avo, spinach, mustard, tomato' },
-    { name: 'Eggs and veg frittata slice', cal: 345, protein: 24, desc: '2 eggs, zucchini, onion, feta. Served with side salad and 1 slice toast' },
-  ],
-  afternoonSnack: [
-    { name: 'Protein ball', cal: 100, protein: 6, desc: '1 bliss ball — oats, peanut butter, honey, chia seeds, dark choc chips' },
-    { name: 'Edamame', cal: 100, protein: 8, desc: '80g edamame pods, pinch of sea salt' },
-    { name: 'Carrot sticks and hummus', cal: 100, protein: 4, desc: '1 large carrot sliced, 2 tbsp hummus' },
-    { name: 'String cheese', cal: 100, protein: 8, desc: '1 light string cheese stick' },
-    { name: 'Boiled egg and cherry tomatoes', cal: 100, protein: 8, desc: '1 egg, 6 cherry tomatoes, salt and pepper' },
-    { name: 'Small banana', cal: 100, protein: 1, desc: '1 small banana — good pre-dinner if training' },
-    { name: 'Corn thins with avocado', cal: 100, protein: 2, desc: '2 corn thins, 2 tbsp smashed avo, lemon, chilli' },
-    { name: 'Roasted chickpeas', cal: 100, protein: 5, desc: '40g oven-roasted chickpeas with paprika and cumin' },
-  ],
-  dinner: [
-    { name: 'Baked salmon with veg', cal: 450, protein: 42, desc: '180g salmon, roasted sweet potato, asparagus, olive oil, lemon, dill' },
-    { name: 'Chicken thigh and lentils', cal: 450, protein: 44, desc: '2 chicken thighs, 120g puy lentils, tomato, spinach, garlic, cumin' },
-    { name: 'Prawn and zucchini pasta', cal: 445, protein: 36, desc: '150g prawns, zucchini noodles, cherry tomatoes, olive oil, chilli, garlic, 60g wholegrain pasta' },
-    { name: 'Lamb and veggie tray bake', cal: 450, protein: 38, desc: '150g lean lamb, capsicum, eggplant, cherry tomatoes, olives, oregano, olive oil' },
-    { name: 'Beef and veg stir fry', cal: 450, protein: 40, desc: '150g lean beef strips, broccolini, bok choy, carrot, 60g brown rice, soy, ginger' },
-    { name: 'Baked barramundi', cal: 445, protein: 40, desc: '200g barramundi, roasted capsicum, olives, capers, cherry tomatoes, olive oil' },
-    { name: 'Chicken and roasted veg bowl', cal: 450, protein: 42, desc: '180g chicken breast, roasted pumpkin, zucchini, red onion, feta, rocket, lemon tahini' },
-    { name: 'Pork fillet with greens', cal: 450, protein: 44, desc: '180g pork fillet, steamed beans, broccolini, 80g sweet potato mash, herb sauce' },
-  ],
-  dessert: [
-    { name: 'Dark chocolate and almonds', cal: 100, protein: 2, desc: '2 squares 70% dark chocolate, 6 almonds' },
-    { name: 'Frozen yoghurt bark', cal: 100, protein: 6, desc: 'Greek yoghurt spread thin, frozen with berries and honey. Break into pieces' },
-    { name: 'Stewed apple with cinnamon', cal: 100, protein: 1, desc: '1 apple stewed with cinnamon and a little water. No added sugar' },
-    { name: 'Rice pudding', cal: 100, protein: 5, desc: 'Small serve rice pudding made with skim milk, vanilla, pinch of nutmeg' },
-    { name: 'Banana nice cream', cal: 100, protein: 2, desc: '1 small frozen banana blended smooth. Top with a pinch of cinnamon' },
-    { name: 'Berries and cream', cal: 100, protein: 2, desc: 'Mixed berries, 1 tbsp light whipped cream' },
-    { name: 'Medjool date and nut butter', cal: 100, protein: 2, desc: '1 medjool date stuffed with 1 tsp almond butter' },
-    { name: 'Chia pudding', cal: 100, protein: 5, desc: '2 tbsp chia seeds soaked in almond milk overnight, topped with kiwi' },
-  ],
-};
